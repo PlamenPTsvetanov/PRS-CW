@@ -19,12 +19,10 @@ import org.springframework.stereotype.Component;
 import org.w3c.dom.Document;
 
 import java.io.ByteArrayOutputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.Provider;
-import java.security.Security;
+import java.security.*;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -37,16 +35,22 @@ public class SignUtil {
 
         ElementProxy.setDefaultPrefix(Constants.SignatureSpecNS, "");
         Init.init();
-        XMLSignature sig = new XMLSignature(doc, null, XMLSignature.ALGO_ID_SIGNATURE_RSA);
+        XMLSignature sig = new XMLSignature(doc, null, XMLSignature.ALGO_ID_SIGNATURE_RSA_SHA256);
         Transforms transforms = new Transforms(doc);
         transforms.addTransform(Transforms.TRANSFORM_ENVELOPED_SIGNATURE);
-        sig.addDocument("", transforms, Constants.ALGO_ID_DIGEST_SHA1);
+        sig.addDocument("", transforms, "http://www.w3.org/2001/04/xmlenc#sha256");
 
         KeyPairGenerator gen = KeyPairGenerator.getInstance("RSA");
         gen.initialize(2048);
         KeyPair keyPair = gen.generateKeyPair();
 
+        KeyStore keyStore = KeyStore.getInstance("JKS");
+        char[] password = "prs".toCharArray();
+        keyStore.load(null, password);
+
+        // Store the key pair in the KeyStore
         X509Certificate cert = (X509Certificate) selfSign(keyPair, "CN=Plamen Tsvetanov, OU=KSI, L=Sofia, C=Bulgaria");
+        storeKeyPair(keyPair, keyStore, "alias", password, "./pair-keystore.jks", cert);
 
         sig.addKeyInfo(cert);
         sig.addKeyInfo(cert.getPublicKey());
@@ -73,7 +77,7 @@ public class SignUtil {
 
         Date endDate = calendar.getTime();
 
-        String signatureAlgorithm = "SHA256WithRSA";
+        String signatureAlgorithm = "SHA256withRSA";
 
         ContentSigner contentSigner = new JcaContentSignerBuilder(signatureAlgorithm).build(keyPair.getPrivate());
 
@@ -84,5 +88,14 @@ public class SignUtil {
         certBuilder.addExtension(new ASN1ObjectIdentifier("2.5.29.19"), true, basicConstraints);
 
         return new JcaX509CertificateConverter().setProvider(bcProvider).getCertificate(certBuilder.build(contentSigner));
+    }
+
+    private static void storeKeyPair(KeyPair keyPair, KeyStore keyStore, String alias,
+                                     char[] password, String keystorePath, Certificate cert) throws Exception {
+        keyStore.setKeyEntry(alias, keyPair.getPrivate(), password, new Certificate[]{cert});
+
+        try (FileOutputStream fos = new FileOutputStream(keystorePath)) {
+            keyStore.store(fos, password);
+        }
     }
 }

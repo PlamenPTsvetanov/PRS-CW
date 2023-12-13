@@ -35,12 +35,13 @@ public class AccountService {
             }
 
             foundAccount.setAmount(foundAccount.getAmount() + topUpAmount);
-            this.repository.save(foundAccount);
 
             Document pushMessage = XmlBuilder.buildPushMessage(LogInManager.getLoggedInUser(), foundAccount);
 
             SignUtil.signFile(pushMessage);
-            ServerUtil.sendToServer(pushMessage);
+            if (ServerUtil.sendToServer(pushMessage) == 200) {
+                this.repository.save(foundAccount);
+            }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
