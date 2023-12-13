@@ -1,13 +1,16 @@
 package com.example.restxmlproject.entities;
 
 import jakarta.persistence.*;
+import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlTransient;
 
+import java.io.Serializable;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 @Entity
 @Table(name = "users")
-public class UserEntity {
+public class UserEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
@@ -21,7 +24,6 @@ public class UserEntity {
 
     @Column(name = "family_name", nullable = false, length = 20)
     private String familyName;
-
     @Column(name = "address", nullable = false, length = 500)
     private String address;
 
@@ -31,7 +33,8 @@ public class UserEntity {
     @Column(name = "password", nullable = false, length = 500)
     private String password;
 
-    @OneToMany(mappedBy = "user", orphanRemoval = true)
+    @OneToMany(mappedBy = "user", orphanRemoval = true, fetch = FetchType.EAGER)
+    @XmlTransient
     private Set<AccountEntity> accounts = new LinkedHashSet<>();
 
     public Set<AccountEntity> getAccounts() {

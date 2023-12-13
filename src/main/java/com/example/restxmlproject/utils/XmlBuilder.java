@@ -1,5 +1,7 @@
 package com.example.restxmlproject.utils;
 
+import com.example.restxmlproject.DTO.AccountDTO;
+import com.example.restxmlproject.DTO.UserDTO;
 import com.example.restxmlproject.entities.AccountEntity;
 import com.example.restxmlproject.entities.UserEntity;
 import jakarta.xml.bind.JAXBContext;
@@ -20,14 +22,19 @@ public class XmlBuilder {
             Element rootElement = doc.createElement("PushMessage");
             doc.appendChild(rootElement);
 
-            JAXBContext senderJaxB = JAXBContext.newInstance(sender.getClass());
+            UserDTO dtoSender = new UserDTO(sender);
+            JAXBContext senderJaxB = JAXBContext.newInstance(dtoSender.getClass());
             Marshaller senderMarshaller = senderJaxB.createMarshaller();
-            senderMarshaller.marshal(sender, doc.createElement("sender"));
+            Element senderElement = doc.createElement("sender");
+            senderMarshaller.marshal(dtoSender, senderElement);
+            rootElement.appendChild(senderElement);
 
-            JAXBContext accountJaxb = JAXBContext.newInstance(sender.getClass());
+            AccountDTO dtoAccount = new AccountDTO(account);
+            JAXBContext accountJaxb = JAXBContext.newInstance(dtoAccount.getClass());
             Marshaller accountMarshaller = accountJaxb.createMarshaller();
-            accountMarshaller.marshal(account, doc.createElement("account"));
-
+            Element accountElement = doc.createElement("account");
+            accountMarshaller.marshal(dtoAccount, accountElement);
+            rootElement.appendChild(accountElement);
         } catch (Exception e) {
             e.printStackTrace();
         }

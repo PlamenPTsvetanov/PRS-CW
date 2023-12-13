@@ -19,9 +19,10 @@ public class AccountService {
         this.repository = repository;
     }
 
-    public void createAccount(AccountEntity account) {
+    public void createAccount(Double amount) {
+        AccountEntity account = new AccountEntity();
         account.setUser(LogInManager.getLoggedInUser());
-
+        account.setAmount(amount);
         this.repository.save(account);
     }
 

@@ -1,10 +1,14 @@
 package com.example.restxmlproject.entities;
 
 import jakarta.persistence.*;
+import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlTransient;
+
+import java.io.Serializable;
 
 @Entity
 @Table(name = "accounts")
-public class AccountEntity {
+public class AccountEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
@@ -15,6 +19,7 @@ public class AccountEntity {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
+    @XmlTransient
     private UserEntity user;
 
     public UserEntity getUser() {
