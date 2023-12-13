@@ -20,8 +20,6 @@ public class ServerUtil {
         HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();
 
         httpConnection.setRequestMethod("POST");
-        httpConnection.setRequestProperty("Accept", "application/xml");
-        httpConnection.setRequestProperty("Content-Type", "application/xml");
 
         TransformerFactory transformerFactory = TransformerFactory.newInstance();
         Transformer transformer = transformerFactory.newTransformer();

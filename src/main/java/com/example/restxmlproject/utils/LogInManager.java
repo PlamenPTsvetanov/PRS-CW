@@ -12,7 +12,10 @@ public class LogInManager {
         entity = e;
     }
 
-    public static UserEntity getLoggedInUser(){
+    public static UserEntity getLoggedInUser() throws Exception {
+        if (entity == null){
+            throw new Exception("Log in before proceeding!");
+        }
         return entity;
     }
 }

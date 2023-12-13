@@ -15,9 +15,9 @@ public class AccountController {
         service = serv;
     }
 
-    @PostMapping("/create")
-    public void register(@RequestBody Double amount) {
-        service.createAccount(amount);
+    @PostMapping(value = "/create", consumes = "application/json")
+    public int register(@RequestBody Double amount) throws Exception {
+        return service.createAccount(amount);
     }
 
 

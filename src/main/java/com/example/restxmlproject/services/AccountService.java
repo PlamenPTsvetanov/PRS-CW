@@ -19,11 +19,12 @@ public class AccountService {
         this.repository = repository;
     }
 
-    public void createAccount(Double amount) {
+    public int createAccount(Double amount) throws Exception {
         AccountEntity account = new AccountEntity();
         account.setUser(LogInManager.getLoggedInUser());
         account.setAmount(amount);
         this.repository.save(account);
+        return account.getId();
     }
 
     public void topUpAccount(Integer accountId, Double topUpAmount) {
@@ -31,7 +32,7 @@ public class AccountService {
             AccountEntity foundAccount = this.repository.findById(accountId).orElse(null);
 
             if (foundAccount == null) {
-                return;
+                throw new Exception("No account with such id found!");
             }
 
             foundAccount.setAmount(foundAccount.getAmount() + topUpAmount);
@@ -39,7 +40,8 @@ public class AccountService {
             Document pushMessage = XmlBuilder.buildPushMessage(LogInManager.getLoggedInUser(), foundAccount);
 
             SignUtil.signFile(pushMessage);
-            if (ServerUtil.sendToServer(pushMessage) == 200) {
+            int i = ServerUtil.sendToServer(pushMessage);
+            if (i == 200) {
                 this.repository.save(foundAccount);
             }
         } catch (Exception e) {
