@@ -1,6 +1,6 @@
 package com.example.restxmlproject;
 
-import com.example.restxmlproject.services.SignUtil;
+import com.example.restxmlproject.utils.SignUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
